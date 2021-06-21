@@ -29,6 +29,8 @@
 
 #include "iperf_config.h"
 
+#include <linux/tcp.h>
+
 #include <sys/time.h>
 #include <sys/types.h>
 #ifdef HAVE_STDINT_H
@@ -39,7 +41,7 @@
 #ifndef _GNU_SOURCE
 # define _GNU_SOURCE
 #endif
-#include <netinet/tcp.h>
+#include <linux/tcp.h>
 
 #if defined(HAVE_CPUSET_SETAFFINITY)
 #include <sys/param.h>
@@ -68,6 +70,8 @@
 #include <openssl/evp.h>
 #endif // HAVE_SSL
 
+#include <linux/inet_diag.h>
+
 #if !defined(__IPERF_API_H)
 typedef uint64_t iperf_size_t;
 #endif // __IPERF_API_H
@@ -92,9 +96,11 @@ struct iperf_interval_results
 #if (defined(linux) || defined(__FreeBSD__) || defined(__NetBSD__)) && \
 	defined(TCP_INFO)
     struct tcp_info tcpInfo; /* getsockopt(TCP_INFO) for Linux, {Free,Net}BSD */
+    union tcp_cc_info tcpCCInfo;
 #else
     /* Just placeholders, never accessed. */
     char *tcpInfo;
+    char *tcpCCInfo;
 #endif
     int interval_retrans;
     int interval_sacks;

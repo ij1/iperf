@@ -97,9 +97,13 @@ save_tcpinfo(struct iperf_stream *sp, struct iperf_interval_results *irp)
 #if (defined(linux) || defined(__FreeBSD__) || defined(__NetBSD__)) && \
 	defined(TCP_INFO)
     socklen_t tcp_info_length = sizeof(struct tcp_info);
+    socklen_t tcp_cc_info_length = sizeof(union tcp_cc_info);
 
     if (getsockopt(sp->socket, IPPROTO_TCP, TCP_INFO, (void *)&irp->tcpInfo, &tcp_info_length) < 0)
 	iperf_err(sp->test, "getsockopt - %s", strerror(errno));
+
+    if (getsockopt(sp->socket, IPPROTO_TCP, TCP_CC_INFO, (void *)&irp->tcpCCInfo, &tcp_cc_info_length) < 0)
+	iperf_err(sp->test, "getsockopt(cc) - %s", strerror(errno));
 
     if (sp->test->debug) {
 	printf("tcpi_snd_cwnd %u tcpi_snd_mss %u tcpi_rtt %u\n",
